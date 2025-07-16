@@ -7,6 +7,7 @@ from google.protobuf import struct_pb2
 import requests
 import streamlit as st
 from PIL import Image
+from dataclasses import dataclass
 
 st.set_page_config(page_title='Multimodal Embedding API test', 
                     page_icon=None, 
@@ -16,7 +17,7 @@ st.set_page_config(page_title='Multimodal Embedding API test',
 
 PROJECT_ID = sys.argv[1]
 DEPLOYED_INDEX_ID = "deployed_index_id_unique"
-INDEX_ENDPOINT = '[URI of endpoint]' #'projects/{ID}/locations/us-central1/indexEndpoints/{E-ID}'
+INDEX_ENDPOINT = 'projects/1045259343465/locations/us-central1/indexEndpoints/116990236218621952' #'projects/{ID}/locations/us-central1/indexEndpoints/{E-ID}'
 NUM_NEIGHBORS = 20
 
 @st.cache_resource
@@ -25,8 +26,15 @@ def get_index_endpoint():
 index_endpoint = get_index_endpoint()
 
 class EmbeddingResponse(typing.NamedTuple):
+    @dataclass
+    class VideoEmbedding:
+        start_offset_sec: int
+        end_offset_sec: int
+        embedding: typing.Sequence[float]
+
     text_embedding: typing.Sequence[float]
     image_embedding: typing.Sequence[float]
+    #video_embeddings: typing.Sequence[VideoEmbedding]
 
 def load_image_bytes(image_uri: str) -> bytes:
     """Load image bytes from a remote or local URI."""
@@ -94,10 +102,10 @@ class EmbeddingPredictionClient:
         )
 
 @st.cache_resource
-def get_embdeeing_client():
+def get_embedding_client():
     return EmbeddingPredictionClient(project=PROJECT_ID)
 
-client = get_embdeeing_client()
+client = get_embedding_client()
 
 col1, col2 = st.columns(2)
 
